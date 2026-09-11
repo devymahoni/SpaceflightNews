@@ -39,6 +39,6 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    //module dependency management
+
     implementation(project(":domain"))
 }

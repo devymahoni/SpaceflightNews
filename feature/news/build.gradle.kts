@@ -52,7 +52,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    //module dependency management
+
     implementation(project(":domain"))
     implementation(project(":core:designsystem"))
 }
