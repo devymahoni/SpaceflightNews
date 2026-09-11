@@ -1,4 +1,4 @@
-package com.migros.spaceflightnews.ui.theme
+package com.migros.spaceflightnews.core.designsystem
 
 import androidx.compose.ui.graphics.Color
 

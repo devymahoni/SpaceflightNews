@@ -1,6 +1,5 @@
-package com.migros.spaceflightnews.ui.theme
+package com.migros.spaceflightnews.core.designsystem
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
