@@ -58,6 +58,7 @@ dependencies {
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
     implementation(libs.coil.compose)
+    implementation(libs.androidx.hilt.navigation.compose)
 
     implementation(project(":domain"))
     implementation(project(":core:designsystem"))
