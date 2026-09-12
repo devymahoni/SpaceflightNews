@@ -37,8 +37,9 @@ private fun String.toFormattedDate(): String {
             timeZone = TimeZone.getTimeZone("UTC")
         }
 
-        val outputFormat = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.ENGLISH)
-
+        val outputFormat = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.ENGLISH).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }
         val date = inputFormat.parse(this)
         requireNotNull(date)
 
