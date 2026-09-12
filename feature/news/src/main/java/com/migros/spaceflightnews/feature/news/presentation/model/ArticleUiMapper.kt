@@ -12,3 +12,16 @@ fun Article.toUiModel(): ArticleUiModel {
         isFavorite = isFavorite
     )
 }
+
+fun Article.toDetailUiModel(): ArticleDetailUiModel {
+    return ArticleDetailUiModel(
+        id = id,
+        title = title,
+        summary = summary,
+        imageUrl = imageUrl,
+        newsSite = newsSite,
+        publishedAt = publishedAt,
+        articleUrl = articleUrl,
+        isFavorite = isFavorite
+    )
+}

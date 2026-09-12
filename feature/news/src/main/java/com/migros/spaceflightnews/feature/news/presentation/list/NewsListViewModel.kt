@@ -23,8 +23,9 @@ class NewsListViewModel @Inject constructor(
         when (event) {
             NewsListUiEvent.LoadArticles -> loadArticles()
             is NewsListUiEvent.SearchQueryChanged -> onSearchQueryChanged(event.query)
-            is NewsListUiEvent.ArticleClicked -> Unit
+            is NewsListUiEvent.ArticleClicked -> onArticleClicked(event.article)
             is NewsListUiEvent.FavoriteClicked -> toggleFavorite(event.article)
+            NewsListUiEvent.BackClicked -> onBackClicked()
         }
     }
 
@@ -82,5 +83,17 @@ class NewsListViewModel @Inject constructor(
         viewModelScope.launch {
             repository.toggleFavorite(article)
         }
+    }
+
+    private fun onArticleClicked(article: Article) {
+        _uiState.value = _uiState.value.copy(
+            selectedArticle = article
+        )
+    }
+
+    private fun onBackClicked() {
+        _uiState.value = _uiState.value.copy(
+            selectedArticle = null
+        )
     }
 }

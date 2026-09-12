@@ -17,6 +17,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.migros.spaceflightnews.feature.news.R
 import androidx.compose.foundation.layout.safeDrawingPadding
+import com.migros.spaceflightnews.feature.news.presentation.detail.ArticleDetailScreen
+import com.migros.spaceflightnews.feature.news.presentation.model.toDetailUiModel
 
 @Composable
 fun NewsListRoute(
@@ -28,9 +30,21 @@ fun NewsListRoute(
         viewModel.onEvent(NewsListUiEvent.LoadArticles)
     }
 
-    NewsListContent(
-        uiState = uiState, onEvent = viewModel::onEvent
-    )
+    val selectedArticle = uiState.selectedArticle
+
+    if (selectedArticle != null) {
+        ArticleDetailScreen(
+            article = selectedArticle.toDetailUiModel(),
+            onBackClick = {
+                viewModel.onEvent(NewsListUiEvent.BackClicked)
+            }
+        )
+    } else {
+        NewsListContent(
+            uiState = uiState,
+            onEvent = viewModel::onEvent
+        )
+    }
 }
 
 @Composable
