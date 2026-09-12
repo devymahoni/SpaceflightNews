@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.hilt.android.plugin)
+    alias(libs.plugins.kotlin.kapt)
 }
 
 android {
@@ -53,6 +55,8 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     testImplementation(libs.kotlinx.coroutines.test)
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
 
     implementation(project(":domain"))
     implementation(project(":core:designsystem"))

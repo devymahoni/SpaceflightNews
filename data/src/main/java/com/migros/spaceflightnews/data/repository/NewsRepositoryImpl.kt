@@ -4,8 +4,9 @@ import com.migros.spaceflightnews.data.mapper.toDomain
 import com.migros.spaceflightnews.data.remote.api.SpaceflightNewsApi
 import com.migros.spaceflightnews.domain.model.Article
 import com.migros.spaceflightnews.domain.repository.NewsRepository
+import javax.inject.Inject
 
-class NewsRepositoryImpl(
+class NewsRepositoryImpl @Inject constructor(
     private val api: SpaceflightNewsApi
 ) : NewsRepository {
 
