@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.Job
 
 @HiltViewModel
 class NewsListViewModel @Inject constructor(
@@ -18,6 +19,7 @@ class NewsListViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(NewsListUiState())
     val uiState: StateFlow<NewsListUiState> = _uiState.asStateFlow()
+    private var articlesJob: Job? = null
 
     fun onEvent(event: NewsListUiEvent) {
         when (event) {
@@ -31,17 +33,22 @@ class NewsListViewModel @Inject constructor(
     }
 
     private fun loadArticles() {
-        viewModelScope.launch {
+        articlesJob?.cancel()
+        articlesJob = viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            repository.getLatestArticles().onSuccess { articles ->
-                _uiState.value = _uiState.value.copy(
-                    articles = articles, isLoading = false
-                )
-            }.onFailure { _ ->
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false, error = NewsListError.LoadFailed
-                )
-            }
+            repository.getLatestArticles()
+                .onSuccess { articles ->
+                    _uiState.value = _uiState.value.copy(
+                        articles = articles,
+                        isLoading = false
+                    )
+                }
+                .onFailure { _ ->
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        error = NewsListError.LoadFailed
+                    )
+                }
         }
     }
 
@@ -50,7 +57,8 @@ class NewsListViewModel @Inject constructor(
             searchQuery = query, isLoading = true, error = null
         )
 
-        viewModelScope.launch {
+        articlesJob?.cancel()
+        articlesJob = viewModelScope.launch {
             val result = when {
                 _uiState.value.showFavoritesOnly -> {
                     repository.getFavoriteArticles().map { favoriteArticles ->
@@ -83,7 +91,9 @@ class NewsListViewModel @Inject constructor(
                 )
             }.onFailure {
                 _uiState.value = _uiState.value.copy(
-                    isLoading = false, error = NewsListError.SearchFailed
+                    articles = emptyList(),
+                    isLoading = false,
+                    error = null
                 )
             }
         }
@@ -123,7 +133,8 @@ class NewsListViewModel @Inject constructor(
             showFavoritesOnly = showFavoritesOnly, searchQuery = "", isLoading = true, error = null
         )
 
-        viewModelScope.launch {
+        articlesJob?.cancel()
+        articlesJob = viewModelScope.launch {
             val result = if (showFavoritesOnly) {
                 repository.getFavoriteArticles()
             } else {

@@ -71,7 +71,7 @@ class NewsListViewModelTest {
     }
 
     @Test
-    fun `search query changed updates state with search error when repository fails`() {
+    fun `search query changed shows empty state when repository fails`() {
         val repository = FakeNewsRepository().apply {
             searchArticlesResult = Result.failure(IllegalStateException("Search error"))
         }
@@ -83,7 +83,7 @@ class NewsListViewModelTest {
         assertEquals("mars", state.searchQuery)
         assertEquals(emptyList<Article>(), state.articles)
         assertFalse(state.isLoading)
-        assertEquals(NewsListError.SearchFailed, state.error)
+        assertEquals(null, state.error)
         assertEquals("mars", repository.searchQuery)
     }
 }
