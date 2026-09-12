@@ -5,11 +5,11 @@ import androidx.lifecycle.viewModelScope
 import com.migros.spaceflightnews.domain.model.Article
 import com.migros.spaceflightnews.domain.repository.NewsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class NewsListViewModel @Inject constructor(
@@ -82,6 +82,18 @@ class NewsListViewModel @Inject constructor(
     private fun toggleFavorite(article: Article) {
         viewModelScope.launch {
             repository.toggleFavorite(article)
+                .onSuccess {
+                    val updatedArticle = article.copy(isFavorite = !article.isFavorite)
+
+                    _uiState.value = _uiState.value.copy(
+                        articles = _uiState.value.articles.map { currentArticle ->
+                            if (currentArticle.id == article.id) updatedArticle else currentArticle
+                        },
+                        selectedArticle = _uiState.value.selectedArticle?.let { selectedArticle ->
+                            if (selectedArticle.id == article.id) updatedArticle else selectedArticle
+                        }
+                    )
+                }
         }
     }
 
