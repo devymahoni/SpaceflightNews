@@ -26,74 +26,81 @@ class NewsListViewModel @Inject constructor(
             is NewsListUiEvent.ArticleClicked -> onArticleClicked(event.article)
             is NewsListUiEvent.FavoriteClicked -> toggleFavorite(event.article)
             NewsListUiEvent.BackClicked -> onBackClicked()
+            NewsListUiEvent.FavoritesFilterClicked -> onFavoritesFilterClicked()
         }
     }
 
     private fun loadArticles() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            repository.getLatestArticles()
-                .onSuccess { articles ->
-                    _uiState.value = _uiState.value.copy(
-                        articles = articles,
-                        isLoading = false
-                    )
-                }
-                .onFailure { _ ->
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        error = NewsListError.LoadFailed
-                    )
-                }
+            repository.getLatestArticles().onSuccess { articles ->
+                _uiState.value = _uiState.value.copy(
+                    articles = articles, isLoading = false
+                )
+            }.onFailure { _ ->
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false, error = NewsListError.LoadFailed
+                )
+            }
         }
     }
 
     private fun onSearchQueryChanged(query: String) {
         _uiState.value = _uiState.value.copy(
-            searchQuery = query,
-            isLoading = true,
-            error = null
+            searchQuery = query, isLoading = true, error = null
         )
 
         viewModelScope.launch {
-            val result = if (query.isBlank()) {
-                repository.getLatestArticles()
-            } else {
-                repository.searchArticles(query)
+            val result = when {
+                _uiState.value.showFavoritesOnly -> {
+                    repository.getFavoriteArticles().map { favoriteArticles ->
+                        if (query.isBlank()) {
+                            favoriteArticles
+                        } else {
+                            favoriteArticles.filter { article ->
+                                article.title.contains(
+                                    query, ignoreCase = true
+                                ) || article.summary.contains(
+                                    query, ignoreCase = true
+                                ) || article.newsSite.contains(query, ignoreCase = true)
+                            }
+                        }
+                    }
+                }
+
+                query.isBlank() -> {
+                    repository.getLatestArticles()
+                }
+
+                else -> {
+                    repository.searchArticles(query)
+                }
             }
 
-            result
-                .onSuccess { articles ->
-                    _uiState.value = _uiState.value.copy(
-                        articles = articles,
-                        isLoading = false,
-                        error = null
-                    )
-                }
-                .onFailure {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        error = NewsListError.SearchFailed
-                    )
-                }
+            result.onSuccess { articles ->
+                _uiState.value = _uiState.value.copy(
+                    articles = articles, isLoading = false, error = null
+                )
+            }.onFailure {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false, error = NewsListError.SearchFailed
+                )
+            }
         }
     }
 
     private fun toggleFavorite(article: Article) {
         viewModelScope.launch {
-            repository.toggleFavorite(article)
-                .onSuccess {
-                    val updatedArticle = article.copy(isFavorite = !article.isFavorite)
+            repository.toggleFavorite(article).onSuccess {
+                val updatedArticle = article.copy(isFavorite = !article.isFavorite)
 
-                    _uiState.value = _uiState.value.copy(
-                        articles = _uiState.value.articles.map { currentArticle ->
-                            if (currentArticle.id == article.id) updatedArticle else currentArticle
-                        },
-                        selectedArticle = _uiState.value.selectedArticle?.let { selectedArticle ->
-                            if (selectedArticle.id == article.id) updatedArticle else selectedArticle
-                        }
-                    )
-                }
+                _uiState.value =
+                    _uiState.value.copy(articles = _uiState.value.articles.map { currentArticle ->
+                        if (currentArticle.id == article.id) updatedArticle else currentArticle
+                    }, selectedArticle = _uiState.value.selectedArticle?.let { selectedArticle ->
+                        if (selectedArticle.id == article.id) updatedArticle else selectedArticle
+                    })
+            }
         }
     }
 
@@ -107,5 +114,31 @@ class NewsListViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(
             selectedArticle = null
         )
+    }
+
+    private fun onFavoritesFilterClicked() {
+        val showFavoritesOnly = !_uiState.value.showFavoritesOnly
+
+        _uiState.value = _uiState.value.copy(
+            showFavoritesOnly = showFavoritesOnly, searchQuery = "", isLoading = true, error = null
+        )
+
+        viewModelScope.launch {
+            val result = if (showFavoritesOnly) {
+                repository.getFavoriteArticles()
+            } else {
+                repository.getLatestArticles()
+            }
+
+            result.onSuccess { articles ->
+                _uiState.value = _uiState.value.copy(
+                    articles = articles, isLoading = false, error = null
+                )
+            }.onFailure {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false, error = NewsListError.LoadFailed
+                )
+            }
+        }
     }
 }

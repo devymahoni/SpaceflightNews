@@ -7,4 +7,5 @@
     <string name="news_list_empty">No articles found</string>
     <string name="article_detail_back">Back</string>
     <string name="article_detail_title">Article Detail</string>
+    <string name="favorites_filter">Favorites</string>
 </resources>

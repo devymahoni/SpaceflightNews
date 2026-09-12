@@ -7,7 +7,8 @@ data class NewsListUiState(
     val searchQuery: String = "",
     val isLoading: Boolean = false,
     val error: NewsListError? = null,
-    val selectedArticle: Article? = null
+    val selectedArticle: Article? = null,
+    val showFavoritesOnly: Boolean = false
 )
 
 sealed interface NewsListUiEvent {
@@ -16,6 +17,7 @@ sealed interface NewsListUiEvent {
     data class ArticleClicked(val article: Article) : NewsListUiEvent
     data class FavoriteClicked(val article: Article) : NewsListUiEvent
     data object BackClicked : NewsListUiEvent
+    data object FavoritesFilterClicked : NewsListUiEvent
 }
 
 enum class NewsListError {

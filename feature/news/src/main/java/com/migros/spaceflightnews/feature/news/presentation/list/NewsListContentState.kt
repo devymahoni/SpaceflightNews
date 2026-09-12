@@ -24,18 +24,17 @@ internal fun NewsListContentState(
     uiState: NewsListUiState,
     onEvent: (NewsListUiEvent) -> Unit
 ) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        when {
-            uiState.isLoading -> {
+    when {
+        uiState.isLoading -> {
+            NewsListCenteredMessage {
                 CircularProgressIndicator(
                     modifier = Modifier.size(32.dp)
                 )
             }
+        }
 
-            uiState.error != null -> {
+        uiState.error != null -> {
+            NewsListCenteredMessage {
                 NewsListMessage(
                     text = when (uiState.error) {
                         NewsListError.LoadFailed -> stringResource(R.string.news_list_error_load)
@@ -43,33 +42,36 @@ internal fun NewsListContentState(
                     }
                 )
             }
+        }
 
-            uiState.articles.isEmpty() -> {
+        uiState.articles.isEmpty() -> {
+            NewsListCenteredMessage {
                 NewsListMessage(
                     text = stringResource(R.string.news_list_empty)
                 )
             }
+        }
 
-            else -> {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(
-                        items = uiState.articles,
-                        key = { article -> article.id }
-                    ) { article ->
-                        val articleUiModel = article.toUiModel()
+        else -> {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(
+                    items = uiState.articles,
+                    key = { article -> article.id }
+                ) { article ->
+                    val articleUiModel = article.toUiModel()
 
-                        ArticleCard(
-                            article = articleUiModel,
-                            onClick = {
-                                onEvent(NewsListUiEvent.ArticleClicked(article))
-                            },
-                            onFavoriteClick = {
-                                onEvent(NewsListUiEvent.FavoriteClicked(article))
-                            }
-                        )
-                    }
+                    ArticleCard(
+                        article = articleUiModel,
+                        onClick = {
+                            onEvent(NewsListUiEvent.ArticleClicked(article))
+                        },
+                        onFavoriteClick = {
+                            onEvent(NewsListUiEvent.FavoriteClicked(article))
+                        }
+                    )
                 }
             }
         }
@@ -86,4 +88,16 @@ private fun NewsListMessage(
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         textAlign = TextAlign.Center
     )
+}
+
+@Composable
+private fun NewsListCenteredMessage(
+    content: @Composable () -> Unit
+) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        content()
+    }
 }
