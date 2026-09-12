@@ -16,6 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.migros.spaceflightnews.feature.news.R
+import androidx.compose.foundation.layout.safeDrawingPadding
 
 @Composable
 fun NewsListRoute(
@@ -40,6 +41,7 @@ private fun NewsListContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .safeDrawingPadding()
             .padding(16.dp)
     ) {
         Text(
